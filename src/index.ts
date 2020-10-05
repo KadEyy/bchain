@@ -12,12 +12,9 @@ const app = express();
 app.use(bodyParser.json());
 injectRoutes(app);
 
-//Transactions
-app.transactions = [];
-
 //Initialize blockchain
 const genesisBlock: Block = new Block();
-const blockChain: BlockChain = new BlockChain(genesisBlock);
+app.blockChain = new BlockChain(genesisBlock);
 
 //Listen to port
 app.listen(process.env.PORT || 3000, () => {
