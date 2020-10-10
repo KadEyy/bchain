@@ -1,17 +1,19 @@
-import Transaction, {TransactionType} from './transaction';
+import {TransactionType} from './transaction';
 import Block, {BlockType} from './block';
-import {getHash} from './crypto';
+import {getHash, generateKeys, RSAKey} from './crypto';
 
 /**
 * Blockchain interface.
 */
-interface BlockChainType{
+export interface BlockChainType{
     blocks: BlockType[];
     genesisBlock: BlockType;
+    publicKey: RSAKey;
     addBlock(block: BlockType): void;
     getNextBlock(transactions: TransactionType[]): BlockType;
     getPreviousBlock(): BlockType;
     genHash(block: BlockType): string;
+    signTransaction(transaction: TransactionType): void;
 }
 
 /**
@@ -22,12 +24,17 @@ export default class BlockChain implements BlockChainType{
     public blocks: BlockType[];
     public genesisBlock: BlockType;
     private difficulty: number;
+    public publicKey: RSAKey;
+    private privateKey: RSAKey;
 
     constructor(genesisBlock: BlockType){
         this.genesisBlock = genesisBlock;
         this.blocks = [];
         this.addBlock(genesisBlock);
         this.difficulty = 4;
+        const keys = generateKeys();
+        this.publicKey = keys.pubKeyObj;
+        this.privateKey = keys.prvKeyObj;
     }
 
     /**
@@ -47,12 +54,12 @@ export default class BlockChain implements BlockChainType{
     public genHash = (block: BlockType): string => {
         let hash: string = getHash(block.key)
         const zeroString: string = '0'.repeat(this.difficulty);
+        console.log(`Block mining!`);
         while(!hash.startsWith(zeroString)){
             block.nonce++;
             hash = getHash(block.key);
-            console.log(`nonce: ${block.nonce}, hash: ${hash}`);
         }
-        console.log(`Finished with hash: ${hash}!`)
+        console.log(`Finished mining with hash: ${hash}!`)
         return hash;
     };
 
@@ -73,4 +80,11 @@ export default class BlockChain implements BlockChainType{
     * Get previous block before new block insertion.
     */
     public getPreviousBlock = () => this.blocks[this.blocks.length - 1];
+
+    /**
+    * Signs transaction with private key.
+    */
+    public signTransaction = (transaction: TransactionType) => {
+        transaction.signWithPrivate(this.privateKey);
+    }
 }

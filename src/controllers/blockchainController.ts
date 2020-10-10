@@ -13,7 +13,7 @@ export const mine = async (req: Request, res: Response) => {
     const block = req.app.blockChain ? req.app.blockChain.getNextBlock(transactionStore.get()) : undefined;
     if(block){
         transactionStore.flush();
-        req.app.blockChain.addBlock(block);
+        if(req.app.blockChain) req.app.blockChain.addBlock(block);
         res.status(201).json(block);
     }else{
         res.status(404).send('No Blockchain initiated!')
