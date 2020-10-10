@@ -1,3 +1,3 @@
 # BCHAIN
 
-My blockchain leari\ning repository. Feel free to read code!
+My blockchain learning repository. Feel free to read code!
